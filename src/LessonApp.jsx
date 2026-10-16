@@ -171,18 +171,20 @@ function SelectorScreen({ screen, imageFor, visited, onVisit, onComplete }) {
 function SelfCheck({ rows, scale, instruction, onDone }) {
   const [index, setIndex] = useState(0);
   const [scores, setScores] = useState(() => rows.map(() => null));
-  const [selected, setSelected] = useState(null);
+  const [selected, setSelected] = useState(1);
+  const [touched, setTouched] = useState(false);
   const row = rows[index];
   const finished = scores.every((score) => score !== null);
   const save = () => {
-    if (selected === null) return;
+    if (!touched) return;
     const next = scores.map((score, scoreIndex) => scoreIndex === index ? selected : score);
     setScores(next);
     if (next.every((score) => score !== null)) onDone(next);
     else {
       const nextIndex = next.findIndex((score) => score === null);
       setIndex(nextIndex);
-      setSelected(null);
+      setSelected(1);
+      setTouched(false);
     }
   };
   if (finished) {
@@ -199,24 +201,28 @@ function SelfCheck({ rows, scale, instruction, onDone }) {
     </div>;
   }
   return (
-    <div className="self-check-workspace">
-      <aside className="rating-areas" aria-label="Self-check areas">
-        <p>{instruction}</p>
-        {rows.map((entry, rowIndex) => <button type="button" key={entry.area} disabled={scores[rowIndex] === null && rowIndex !== index} className={`${rowIndex === index ? "active" : ""} ${scores[rowIndex] !== null ? "rated" : ""}`} onClick={() => { setIndex(rowIndex); setSelected(scores[rowIndex]); }}>
-          <span>{scores[rowIndex] ?? String(rowIndex + 1).padStart(2, "0")}</span><strong>{entry.area}</strong>{scores[rowIndex] !== null && <Check />}
-        </button>)}
-      </aside>
+    <div className="self-check-workspace self-check-modern">
+      <div className="self-check-progress"><span>Area {index + 1} of {rows.length}</span><i><b style={{ width: `${((index + 1) / rows.length) * 100}%` }} /></i></div>
+      <p className="self-check-instruction">{instruction}</p>
       <div className="rating-panel">
-        <div className="self-check-progress"><span>Area {index + 1} of {rows.length}</span><i><b style={{ width: `${((index + 1) / rows.length) * 100}%` }} /></i></div>
         <p className="self-check-area">{row.area}</p>
         <h2>{row.ready}</h2>
-        <p className="rating-prompt">How confident are you right now?</p>
-        <div className="confidence-meter" role="radiogroup" aria-label={`Rate ${row.area} from 1 to 4`}>
-          {scale.map((label, scoreIndex) => <button type="button" role="radio" aria-checked={selected === scoreIndex + 1} className={selected === scoreIndex + 1 ? "selected" : ""} key={label} onClick={() => setSelected(scoreIndex + 1)}><span>{scoreIndex + 1}</span><strong>{label}</strong></button>)}
+        <div className={`rating-visual ${touched ? "has-value" : ""}`}>
+          <div className="rating-value" aria-live="polite">
+            <strong>{touched ? selected : "—"}</strong>
+            <span>{touched ? scale[selected - 1] : "Move the slider"}</span>
+          </div>
+          <div className="confidence-bars" aria-hidden="true">
+            {scale.map((label, scoreIndex) => <i key={label} className={`${touched && scoreIndex + 1 <= selected ? "reached" : ""} ${touched && scoreIndex + 1 === selected ? "current" : ""}`} style={{ height: `${48 + scoreIndex * 28}px` }} />)}
+          </div>
+        </div>
+        <div className="slider-control">
+          <input type="range" min="1" max="4" step="1" value={selected} aria-label={`Rate ${row.area} from 1 to 4`} aria-valuetext={touched ? `${selected}, ${scale[selected - 1]}` : "Not yet rated"} onChange={(event) => { setSelected(Number(event.target.value)); setTouched(true); }} style={{ "--rating-progress": touched ? `${((selected - 1) / 3) * 100}%` : "0%" }} />
+          <div className="slider-labels" aria-hidden="true">{scale.map((label, scoreIndex) => <span key={label}><b>{scoreIndex + 1}</b>{label}</span>)}</div>
         </div>
         <div className="rating-confirm">
-          <span>{selected ? `Selected: ${scale[selected - 1]} · ${selected}/4` : "Choose the level that feels true—not the one you want to be true."}</span>
-          <button type="button" disabled={selected === null} onClick={save}>{index === rows.length - 1 ? "Finish" : "Save rating"} <ArrowRight /></button>
+          <span>{touched ? `Current level: ${scale[selected - 1]}` : "Choose the level that feels true—not the one you want to be true."}</span>
+          <button type="button" disabled={!touched} onClick={save}>{index === rows.length - 1 ? "Finish" : "Save rating"} <ArrowRight /></button>
         </div>
       </div>
     </div>
