@@ -145,7 +145,11 @@ function SelectorScreen({ screen, imageFor, visited, onVisit, onComplete }) {
   useEffect(() => { if (allRead) onComplete(); }, [allRead, onComplete]);
   return (
     <div className="grid-page selector-page">
-      <ScreenHeader screen={screen} imageFor={imageFor} />
+      <div className="selector-header">
+        <h2>{screen.headline}</h2>
+        {screen.intro && <p className="lead">{screen.intro}</p>}
+      </div>
+      <div className="activity-instruction selector-guide"><Target /><span>{screen.instruction}</span></div>
       <div className="concept-selector">
         <div className="concept-list" role="tablist" aria-label={screen.headline}>
           {screen.items.map((entry, index) => <button type="button" role="tab" aria-selected={active === index} className={`${active === index ? "active" : ""} ${visited.has(index) ? "read" : ""}`} key={entry.title} onClick={() => setActive(index)}>

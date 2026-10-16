@@ -25,6 +25,7 @@ export const lesson = {
       id: "terms", tab: "Seven key terms", type: "pager", presentation: "selector", pageSize: 3,
       headline: "Seven Key Terms at a Glance",
       intro: "Seven definitions. Two of them are traps. Here is the whole set in one view. The next two sections take them in two groups: the terms that describe the practice of business analysis, then the terms that describe its context. Section 4 covers the classification schema.",
+      instruction: "Click each term to explore.",
       image: "key-terms",
       items: [
         { title: "Business Analysis", text: "Enabling change in an enterprise by defining needs and recommending solutions that deliver value.", image: "business-analysis" },
