@@ -100,7 +100,7 @@ function ExploreScreen({ screen, imageFor, visited, onVisit, onComplete }) {
       <CardGrid items={visible} visited={visited} onOpen={setActive} />
       {allRead && screen.after && <div className="revealed-note"><strong>{screen.after.title}</strong><p>{screen.after.text}</p>{screen.after.note && <small>{screen.after.note}</small>}</div>}
       {allRead && screen.anchor && <div className="knowledge-anchor"><Target /><div><strong>Knowledge anchor</strong><p>{screen.anchor}</p></div></div>}
-      {active !== null && <FocusModal content={{ ...screen.items[active], image: screen.items[active].image || screen.image }} imageFor={imageFor} onClose={() => setActive(null)} onRead={() => onVisit(active)} />}
+      {active !== null && <FocusModal content={screen.items[active]} imageFor={imageFor} onClose={() => setActive(null)} onRead={() => onVisit(active)} />}
     </div>
   );
 }
