@@ -15,6 +15,22 @@ function DetailTable({ table }) {
   );
 }
 
+function BarChart({ chart }) {
+  if (!chart) return null;
+  return (
+    <figure className="learning-chart">
+      <figcaption><strong>{chart.title}</strong>{chart.caption && <span>{chart.caption}</span>}</figcaption>
+      <div className="bar-chart" role="img" aria-label={chart.ariaLabel || chart.title}>
+        {chart.rows.map((row) => <div className="bar-row" key={row.label}>
+          <span>{row.label}</span>
+          <i><b style={{ width: `${row.value}%` }} /></i>
+          <strong>{row.value}%</strong>
+        </div>)}
+      </div>
+    </figure>
+  );
+}
+
 function FocusModal({ content, imageFor, onClose, onRead, action = "Mark as read" }) {
   useEffect(() => {
     const closeOnEscape = (event) => event.key === "Escape" && onClose();
@@ -30,6 +46,7 @@ function FocusModal({ content, imageFor, onClose, onRead, action = "Mark as read
         {content.subtitle && <p className="detail-subtitle">{content.subtitle}</p>}
         <h3 id="focus-title">{content.title}</h3>
         {content.text && <p className="detail-text">{content.text}</p>}
+        {content.bulletsTitle && <h4 className="detail-list-title">{content.bulletsTitle}</h4>}
         {content.bullets && <ul>{content.bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}</ul>}
         <DetailTable table={content.table} />
         {content.note && <div className="detail-note">{content.note.split("\n").map((line, index) => <p key={index}>{line || " "}</p>)}</div>}
@@ -97,6 +114,8 @@ function ExploreScreen({ screen, imageFor, visited, onVisit, onComplete }) {
   return (
     <div className="grid-page">
       <ScreenHeader screen={screen} imageFor={imageFor} />
+      {screen.instruction && <div className="activity-instruction"><Target /><span>{screen.instruction}</span></div>}
+      <BarChart chart={screen.chart} />
       <CardGrid items={visible} visited={visited} onOpen={setActive} />
       {allRead && screen.after && <div className="revealed-note"><strong>{screen.after.title}</strong><p>{screen.after.text}</p>{screen.after.note && <small>{screen.after.note}</small>}</div>}
       {allRead && screen.anchor && <div className="knowledge-anchor"><Target /><div><strong>Knowledge anchor</strong><p>{screen.anchor}</p></div></div>}
@@ -105,7 +124,7 @@ function ExploreScreen({ screen, imageFor, visited, onVisit, onComplete }) {
   );
 }
 
-function SelfCheck({ rows, scale, onDone }) {
+function SelfCheck({ rows, scale, instruction, onDone }) {
   const [index, setIndex] = useState(0);
   const [scores, setScores] = useState([]);
   const row = rows[index];
@@ -113,20 +132,32 @@ function SelfCheck({ rows, scale, onDone }) {
   const choose = (score) => {
     const next = [...scores, score];
     setScores(next);
-    if (next.length === rows.length) onDone();
+    if (next.length === rows.length) onDone(next);
     else setIndex((value) => value + 1);
   };
   if (finished) {
     const total = scores.reduce((sum, score) => sum + score, 0);
-    return <div className="score-summary"><span><Check /></span><div><strong>Self-check complete</strong><p>{total} of {rows.length * 4}. Revisit any area you scored below 3.</p></div></div>;
+    return <div className="self-check-results">
+      <div className="score-summary"><span><Check /></span><div><strong>Self-check complete</strong><p>{total} of {rows.length * 4}</p></div></div>
+      <div className="score-chart" aria-label="Your self-check scores">
+        {rows.map((entry, rowIndex) => <div className="score-row" key={entry.area}>
+          <div><strong>{entry.area}</strong><span>{scores[rowIndex]} of 4</span></div>
+          <i><b className={scores[rowIndex] < 3 ? "needs-review" : "ready"} style={{ width: `${scores[rowIndex] * 25}%` }} /></i>
+          {scores[rowIndex] < 3 && <small>{entry.revisit}</small>}
+        </div>)}
+      </div>
+    </div>;
   }
   return (
     <div className="self-check-card">
-      <div className="self-check-progress"><span>Area {index + 1} of {rows.length}</span><i><b style={{ width: `${(index / rows.length) * 100}%` }} /></i></div>
+      <div className="self-check-intro"><strong>Self-check</strong><p>{instruction}</p></div>
+      <div className="self-check-progress"><span>Area {index + 1} of {rows.length}</span><i><b style={{ width: `${((index + 1) / rows.length) * 100}%` }} /></i></div>
       <p className="self-check-area">{row.area}</p>
       <h2>{row.ready}</h2>
-      <p className="revisit">{row.revisit}</p>
-      <div className="score-buttons">{scale.map((label, scoreIndex) => <button type="button" key={label} onClick={() => choose(scoreIndex + 1)}><span>{scoreIndex + 1}</span>{label}</button>)}</div>
+      <div className="rating-scale" aria-label={`Rate ${row.area} from 1 to 4`}>
+        <div className="rating-track" aria-hidden="true"><i /></div>
+        <div className="score-buttons">{scale.map((label, scoreIndex) => <button type="button" key={label} onClick={() => choose(scoreIndex + 1)}><span>{scoreIndex + 1}</span><small>{label}</small></button>)}</div>
+      </div>
     </div>
   );
 }
@@ -137,42 +168,68 @@ function SelfCheckScreen({ screen, imageFor, onComplete }) {
   return (
     <div className="grid-page">
       <ScreenHeader screen={screen} imageFor={imageFor} />
-      <SelfCheck rows={screen.rows} scale={screen.scale} onDone={() => { setDone(true); onComplete(); }} />
-      {done && <button className="knowledge-cta" type="button" onClick={() => setFocus({ title: "Course map and exam lens", table: screen.crosswalk, text: screen.examLens, note: screen.summary, image: screen.lensImage })}><Target /> Open exam lens</button>}
+      <SelfCheck rows={screen.rows} scale={screen.scale} instruction={screen.instruction} onDone={() => { setDone(true); onComplete(); }} />
+      {done && <div className="self-check-followup">
+        {screen.howTo && <div className="how-to-scores"><strong>How to use your scores</strong><p>{screen.howTo}</p></div>}
+        {screen.crosswalk && <section className="crosswalk-section"><h3>{screen.crosswalkTitle}</h3><p>{screen.crosswalkIntro}</p><DetailTable table={screen.crosswalk} />{screen.crosswalkCaption && <small>{screen.crosswalkCaption}</small>}</section>}
+        <div className="source-actions">
+          {screen.examLens && <button className="knowledge-cta" type="button" onClick={() => setFocus({ title: "Exam Lens", text: screen.examLens, image: screen.lensImage })}><Target /> Open exam lens</button>}
+          {screen.summary && <button className="knowledge-retake" type="button" onClick={() => setFocus({ title: screen.summaryTitle, text: screen.summary })}>Open framework crosswalk</button>}
+        </div>
+      </div>}
       {focus && <FocusModal content={focus} imageFor={imageFor} onClose={() => setFocus(null)} onRead={() => {}} action="Done" />}
     </div>
   );
 }
 
-function QuizScreen({ screen, imageFor, onComplete }) {
-  const [questionIndex, setQuestionIndex] = useState(0);
+function KnowledgeCheckModal({ questions, startIndex, onClose, onFinish }) {
+  const [questionIndex, setQuestionIndex] = useState(startIndex);
   const [picked, setPicked] = useState(null);
+  const question = questions[questionIndex];
+  const last = questionIndex === questions.length - 1;
+  const advance = () => {
+    if (last) onFinish();
+    else { setQuestionIndex((value) => value + 1); setPicked(null); }
+  };
+  return createPortal(
+    <div className="knowledge-backdrop">
+      <section className="knowledge-modal" role="dialog" aria-modal="true" aria-labelledby="knowledge-title">
+        <button className="modal-close" type="button" onClick={onClose} aria-label="Close"><X /></button>
+        <p className="quiz-label"><Target /> MICRO KNOWLEDGE CHECK · {questionIndex + 1} OF {questions.length}</p>
+        <h3 id="knowledge-title">{question.question}</h3>
+        <div className="answers">{question.answers.map((answer, index) => {
+          const revealed = picked !== null;
+          const state = revealed && index === question.correct ? "correct" : picked === index ? "wrong" : "";
+          return <button type="button" key={answer} className={state} disabled={revealed} onClick={() => setPicked(index)}><span>{String.fromCharCode(65 + index)}</span>{answer}</button>;
+        })}</div>
+        {picked !== null && <div className="answer-reveal"><strong>Answer</strong><p>{question.feedback}</p></div>}
+        {picked !== null && <button className="finish-check" type="button" onClick={advance}>{last ? "Finish check" : "Next check"} <ArrowRight /></button>}
+      </section>
+    </div>,
+    document.body,
+  );
+}
+
+function QuizScreen({ screen, imageFor, onComplete }) {
+  const [quizOpen, setQuizOpen] = useState(false);
   const [checksDone, setChecksDone] = useState(false);
   const [selfDone, setSelfDone] = useState(false);
   const [lens, setLens] = useState(false);
-  const question = screen.quiz[questionIndex];
-  const correct = picked === question.correct;
-  const next = () => {
-    if (questionIndex === screen.quiz.length - 1) setChecksDone(true);
-    else { setQuestionIndex((value) => value + 1); setPicked(null); }
-  };
   useEffect(() => { if (checksDone && selfDone) onComplete(); }, [checksDone, selfDone, onComplete]);
   return (
     <div className="grid-page">
       <ScreenHeader screen={screen} imageFor={imageFor} />
       {!checksDone ? (
-        <div className="quiz-card">
-          <div className="quiz-step"><Target /> Check {questionIndex + 1} of {screen.quiz.length}</div>
-          <h2>{question.question}</h2>
-          <div className="answers">{question.answers.map((answer, index) => <button type="button" key={answer} className={picked === index ? (correct ? "correct" : "wrong") : ""} onClick={() => setPicked(index)}><span>{String.fromCharCode(65 + index)}</span>{answer}</button>)}</div>
-          {picked !== null && <div className={`feedback ${correct ? "good" : "bad"}`}><p>{correct ? question.feedback : "Not quite. Compare the defining test in the lesson, then choose again."}</p>{!correct && <small>Try another answer.</small>}</div>}
-          {correct && <button className="modal-action quiz-next" type="button" onClick={next}>{questionIndex === screen.quiz.length - 1 ? "Continue to self-check" : "Next check"} <ArrowRight /></button>}
+        <div className="knowledge-launch">
+          <div><p className="quiz-step"><Target /> Knowledge checks</p><h2>Three single-answer scenario questions</h2><p>{screen.quizInstruction}</p></div>
+          <button className="knowledge-cta" type="button" onClick={() => setQuizOpen(true)}><Target /> Start knowledge check <ArrowRight /></button>
         </div>
       ) : !selfDone ? (
-        <SelfCheck rows={screen.rows} scale={screen.scale} onDone={() => setSelfDone(true)} />
+        <div className="lock-in-self-check"><div className="knowledge-actions completed"><div className="knowledge-complete"><span><Check /></span><div><strong>Knowledge check completed</strong><small>All three answer panels reviewed</small></div></div><button className="knowledge-cta" type="button" disabled><Check /> Completed</button></div><SelfCheck rows={screen.rows} scale={screen.scale} instruction={screen.selfCheckInstruction} onDone={() => setSelfDone(true)} /></div>
       ) : (
-        <div className="score-summary"><span><Check /></span><div><strong>Knowledge check completed</strong><p>You completed all three checks and the self-score.</p><button className="knowledge-cta" type="button" onClick={() => setLens(true)}><Target /> Open exam lens</button></div></div>
+        <div className="knowledge-actions completed"><div className="knowledge-complete"><span><Check /></span><div><strong>Lock It In complete</strong><small>Three checks and the self-check completed</small></div></div><div className="knowledge-action-buttons"><button className="knowledge-cta" type="button" disabled><Check /> Completed</button><button className="knowledge-retake" type="button" onClick={() => setLens(true)}>Open exam lens</button></div></div>
       )}
+      {quizOpen && <KnowledgeCheckModal questions={screen.quiz} startIndex={0} onClose={() => setQuizOpen(false)} onFinish={() => { setChecksDone(true); setQuizOpen(false); }} />}
       {lens && <FocusModal content={{ title: "Exam lens", text: screen.examLens, image: screen.lensImage }} imageFor={imageFor} onClose={() => setLens(false)} onRead={() => {}} action="Done" />}
     </div>
   );

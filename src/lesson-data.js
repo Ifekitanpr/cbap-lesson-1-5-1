@@ -7,10 +7,12 @@ export const lesson = {
     {
       id: "overview", tab: "Overview", type: "reveal",
       headline: "Key Terms & the Requirements Classification Schema",
-      lead: "Seven definitions. One schema. Three exam traps.",
+      lead: "Seven definitions from Chapter 2 that carry disproportionate exam weight.",
       image: "key-terms", cta: "See what you’ll learn",
       reveal: {
-        title: "What You’ll Learn",
+        title: "Seven definitions, one schema",
+        text: "Seven definitions from Chapter 2 carry disproportionate exam weight. Then comes the schema that sorts every requirement into one of four levels. Learn the four levels by the question each one answers. The Guide itself presents them this way in the Requirements and Design Cycle.",
+        bulletsTitle: "What You’ll Learn",
         bullets: [
           "The seven Chapter 2 key terms — precise definitions worth committing to memory.",
           "Why the Guide says “information,” not “requirements” — and why requirements are a subset.",
@@ -39,6 +41,7 @@ export const lesson = {
       id: "practice", tab: "The practice", type: "cards",
       headline: "The Terms That Describe the Practice",
       intro: "What business analysis is, what it works on, and what it produces.",
+      instruction: "Three cards below, one per term. Open each to read the definition and what to watch for.",
       image: "practice-terms",
       items: [
         { title: "Business Analysis", subtitle: "The practice of enabling change.", text: "The practice of enabling change in an enterprise by defining needs and recommending solutions that deliver value to stakeholders.", image: "business-analysis-practice" },
@@ -51,6 +54,7 @@ export const lesson = {
       id: "context", tab: "The context", type: "cards",
       headline: "The Terms That Describe the Context",
       intro: "Enterprise, organisation, plan, and risk.",
+      instruction: "Four cards in this section. Enterprise and Organisation are the pair the exam most often tests together; Risk carries the second trap.",
       image: "enterprise-context",
       items: [
         { title: "Enterprise", subtitle: "A system of organisations and the solutions they use.", text: "A system of one or more organisations and the solutions they use to pursue a shared set of common goals. These solutions, also called organisational capabilities, can be processes, tools, or information. Critically, for the purpose of business analysis, enterprise boundaries can be defined relative to the change and need not be constrained by the boundaries of a legal entity, organisation, or organisational unit. An enterprise may include business, government, or any other type of organisation.", image: "enterprise-context-detail" },
@@ -64,6 +68,7 @@ export const lesson = {
       id: "schema", tab: "Requirements schema", type: "cards",
       headline: "The Requirements Classification Schema",
       intro: "Four levels of requirement, four questions.",
+      instruction: "Two traps below. Both are about drawing the line between neighbouring levels.",
       image: "requirements-schema",
       items: [
         { title: "Business requirements", subtitle: "Why do I want it?", text: "Statements of goals, objectives, and outcomes describing why a change has been initiated. May apply to a whole enterprise, a business area, or a specific initiative.", note: "Example: “Reduce median peak-window dwell time to under 5 minutes at the eleven affected stores within two quarters, holding order accuracy at ≥96%”", image: "business-requirements" },
@@ -84,6 +89,7 @@ export const lesson = {
         { question: "Which of these is a non-functional requirement?", answers: ["The system shall remain available 99.95% of the time.", "The system shall encrypt cardholder data at rest.", "The system shall email a receipt after each payment.", "The system shall migrate legacy records before cutover."], correct: 0, feedback: "A. Availability is a condition under which the solution must remain effective, so it is non-functional. Encryption sounds technical but describes behaviour, so it is functional. The receipt is functional, and the migration is transitional." },
         { question: "A retailer and its regulator must jointly define controls for a change. For the analysis, how should the boundary be drawn?", answers: ["Around the retailer’s legal entity only.", "As one enterprise spanning both parties, with the boundary drawn relative to the change.", "As two separate organisations analysed independently.", "Around the project team, since it is delivering the change."], correct: 1, feedback: "B. An enterprise can span a company and its regulator, and its boundary is drawn relative to the change, not to a legal entity. When parties cross corporate boundaries, think enterprise." },
       ],
+      quizInstruction: "Three single-answer scenario questions. Pick one option and the answer panel appears.",
       rows: [
         { area: "The seven terms", ready: "State each term’s definition in one line", revisit: "Revisit Section 1" },
         { area: "Information vs requirements", ready: "Explain why requirements are a subset of BA information", revisit: "Revisit Section 2" },
@@ -93,6 +99,7 @@ export const lesson = {
         { area: "Transition and non-functional", ready: "Apply the “survives go-live?” and “behaviour or condition?” tests", revisit: "Revisit Section 4" },
       ],
       scale: ["Shaky", "Developing", "Solid", "Exam-ready"],
+      selfCheckInstruction: "Score yourself 1 to 4 in each row. 1 = shaky, 2 = developing, 3 = solid, 4 = exam-ready. Return to the matching section for any low score.",
       examLens: "Enterprise vs organisation. Parties across corporate boundaries means enterprise. Risk can be increased. Do not rule out an option just because it raises exposure; risk is about value. Information vs requirements. Requirements are a subset of business analysis information. Transition is temporary. Ask whether the capability survives go-live. Non-functional is not technical. Behaviour or information managed is functional; conditions and qualities are non-functional.",
     },
   ],
