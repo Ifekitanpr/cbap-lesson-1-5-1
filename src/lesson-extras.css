@@ -699,7 +699,8 @@
 }
 
 .self-check-instruction {
-  max-width: 76ch;
+  width: 100%;
+  max-width: none;
   margin: 0;
   color: #64748b;
   font-size: 13px;
