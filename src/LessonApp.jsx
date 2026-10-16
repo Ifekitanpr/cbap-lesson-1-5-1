@@ -209,18 +209,23 @@ function TermMapScreen({ screen, visited, onVisit, onComplete }) {
             {group.items.map((entry, groupIndex) => {
               const index = group.start + groupIndex;
               const selected = active === index;
-              return <button
-                type="button"
-                className={`${selected ? "active" : ""} ${visited.has(index) ? "read" : ""}`}
-                aria-pressed={selected}
-                aria-controls="term-definition"
-                key={entry.title}
-                onClick={() => selectTerm(index)}
-              >
-                <span>{String(index + 1).padStart(2, "0")}</span>
-                <strong>{entry.title}</strong>
-                {visited.has(index) ? <Check /> : <ArrowRight />}
-              </button>;
+              return <div className={`term-map-item ${selected ? "active" : ""} ${visited.has(index) ? "read" : ""}`} key={entry.title}>
+                <button
+                  type="button"
+                  className={`${selected ? "active" : ""} ${visited.has(index) ? "read" : ""}`}
+                  aria-expanded={selected}
+                  aria-controls={`term-inline-${index}`}
+                  onClick={() => selectTerm(index)}
+                >
+                  <span>{String(index + 1).padStart(2, "0")}</span>
+                  <strong>{entry.title}</strong>
+                  {visited.has(index) ? <Check /> : <ArrowRight />}
+                </button>
+                <div className="term-inline-definition" id={`term-inline-${index}`} hidden={!selected}>
+                  <p>{entry.text}</p>
+                  {entry.note && <small>{entry.note}</small>}
+                </div>
+              </div>;
             })}
           </div>
         </section>)}
