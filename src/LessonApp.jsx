@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { ArrowLeft, ArrowRight, BookOpen, Check, Menu, Target, Volume2, VolumeX, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, BookOpen, Check, Compass, FileCheck2, FileText, Layers3, ListChecks, Menu, Route, ShieldCheck, Target, Users, Volume2, VolumeX, Workflow, X } from "lucide-react";
 import { useLessonAudio } from "./useLessonAudio";
 
 function DetailTable({ table }) {
@@ -42,13 +42,12 @@ function FocusModal({ content, imageFor, onClose, onRead, action = "Mark as read
 
 function ScreenHeader({ screen, imageFor }) {
   return (
-    <div className="grid-page-header">
+    <div className="pmp-section-head">
       <div>
-        <p className="screen-kicker">Lesson content</p>
-        <h1>{screen.headline}</h1>
+        <h2>{screen.headline}</h2>
         {screen.intro && <p className="lead">{screen.intro}</p>}
       </div>
-      <img className="grid-page-art" src={imageFor(screen.image)} alt="" />
+      <img className="section-illustration" src={imageFor(screen.image)} alt="" />
     </div>
   );
 }
@@ -72,16 +71,18 @@ function RevealScreen({ screen, imageFor, complete, onComplete }) {
 }
 
 function CardGrid({ items, visited, onOpen }) {
+  const iconSet = [Compass, Layers3, Workflow, Users, FileText, ListChecks, ShieldCheck, Route, FileCheck2];
   const countClass = items.length === 4 ? "two-by-two" : items.length === 3 ? "three" : items.length === 2 ? "two" : "four";
   return (
     <div className={`card-grid ${countClass}`}>
-      {items.map((item) => (
-        <button className={`click-card ${visited.has(item.index) ? "read" : ""}`} type="button" key={item.index} onClick={() => onOpen(item.index)}>
-          <span className="card-number">{String(item.index + 1).padStart(2, "0")}</span>
+      {items.map((item) => {
+        const CardIcon = iconSet[item.index % iconSet.length];
+        return <button className={`click-card ${visited.has(item.index) ? "read" : ""}`} type="button" key={item.index} onClick={() => onOpen(item.index)}>
+          <span className="card-icon"><CardIcon /></span>
           <span className="card-copy"><strong>{item.title}</strong>{item.subtitle && <small>{item.subtitle}</small>}</span>
           {visited.has(item.index) ? <Check className="card-arrow check" /> : <ArrowRight className="card-arrow" />}
-        </button>
-      ))}
+        </button>;
+      })}
     </div>
   );
 }
