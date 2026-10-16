@@ -22,7 +22,7 @@ export const lesson = {
       },
     },
     {
-      id: "terms", tab: "Seven key terms", type: "pager", pageSize: 3,
+      id: "terms", tab: "Seven key terms", type: "pager", presentation: "selector", pageSize: 3,
       headline: "Seven Key Terms at a Glance",
       intro: "Seven definitions. Two of them are traps. Here is the whole set in one view. The next two sections take them in two groups: the terms that describe the practice of business analysis, then the terms that describe its context. Section 4 covers the classification schema.",
       image: "key-terms",
@@ -56,7 +56,6 @@ export const lesson = {
       intro: "Enterprise, organisation, plan, and risk.",
       instruction: "Four cards in this section. Enterprise and Organisation are the pair the exam most often tests together; Risk carries the second trap.",
       image: "enterprise-context",
-      figureCaption: "Figure 1.5.1.a: An organisation is bounded and continuous. An enterprise is a system of organisations plus their solutions, with its boundary drawn relative to the change.",
       items: [
         { title: "Enterprise", subtitle: "A system of organisations and the solutions they use.", text: "A system of one or more organisations and the solutions they use to pursue a shared set of common goals. These solutions, also called organisational capabilities, can be processes, tools, or information. Critically, for the purpose of business analysis, enterprise boundaries can be defined relative to the change and need not be constrained by the boundaries of a legal entity, organisation, or organisational unit. An enterprise may include business, government, or any other type of organisation.", image: "enterprise-context-detail" },
         { title: "Organisation", subtitle: "An autonomous, continuously operating group under single management.", text: "An autonomous group of people under the management of a single individual or board, working towards common goals and objectives. Organisations generally have a clearly defined boundary and operate continuously, as opposed to an initiative or project team, which may disband once objectives are achieved.", note: "EXAM TRAP · ENTERPRISE VERSUS ORGANISATION. These are not synonyms and the exam tests the difference. An organisation is a bounded, continuously operating group under single management. An enterprise is a system of one or more organisations plus the solutions they use, and its boundary is drawn relative to the change. An enterprise can span multiple companies, a company and its regulator, or a company and its supply chain. When a scenario involves parties across corporate boundaries, think enterprise.", image: "organisation-context-detail" },
@@ -71,7 +70,6 @@ export const lesson = {
       intro: "Four levels of requirement, four questions.",
       instruction: "Two traps below. Both are about drawing the line between neighbouring levels.",
       image: "requirements-schema",
-      figureCaption: "Figure 1.5.1.b: The four requirement levels, each with the question it answers. Solution requirements split into functional and non-functional.",
       items: [
         { title: "Business requirements", subtitle: "Why do I want it?", text: "Statements of goals, objectives, and outcomes describing why a change has been initiated. May apply to a whole enterprise, a business area, or a specific initiative.", note: "Example: “Reduce median peak-window dwell time to under 5 minutes at the eleven affected stores within two quarters, holding order accuracy at ≥96%”", image: "business-requirements" },
         { title: "Stakeholder requirements", subtitle: "What are the needs?", text: "The needs of stakeholders that must be met to achieve the business requirements. A bridge between business and solution requirements.", note: "Example: “Baristas must be able to see and sequence incoming orders without leaving the service position”", image: "stakeholder-requirements" },
@@ -81,17 +79,28 @@ export const lesson = {
       anchor: "Business = why. Stakeholder = what are the needs. Solution = what do I want (functional = what it does; non-functional = how well). Transition = what are the conditions. Four levels, four questions.",
     },
     {
-      id: "lock-in", tab: "Lock it in", type: "quiz",
+      id: "lock-in", tab: "Lock it in", type: "lockintro",
       headline: "Lock It In",
       intro: "Three checks, then a self-score.",
       image: "exam-lock-in",
-      lensImage: "key-terms-exam-lens",
+    },
+    {
+      id: "knowledge-check", tab: "Knowledge check", type: "knowledgecheck",
+      headline: "Knowledge Checks",
+      intro: "Three single-answer scenario questions. The learner picks one option and the answer panel appears.",
+      image: "exam-lock-in",
       quiz: [
         { question: "An analyst is classifying two needs for a new billing system: (i) migrate historical invoices from the legacy system before go-live, and (ii) generate a monthly statement for each customer. Which classification is correct?", answers: ["Both are solution requirements.", "(i) is a stakeholder requirement and (ii) is a solution requirement.", "(i) is a transition requirement and (ii) is a functional solution requirement.", "Both are transition requirements."], correct: 2, feedback: "C. Migration does not survive go-live, so it is a transition requirement. Statement generation persists into steady-state operation and describes behaviour, so it is a functional solution requirement." },
         { question: "Which of these is a non-functional requirement?", answers: ["The system shall remain available 99.95% of the time.", "The system shall encrypt cardholder data at rest.", "The system shall email a receipt after each payment.", "The system shall migrate legacy records before cutover."], correct: 0, feedback: "A. Availability is a condition under which the solution must remain effective, so it is non-functional. Encryption sounds technical but describes behaviour, so it is functional. The receipt is functional, and the migration is transitional." },
         { question: "A retailer and its regulator must jointly define controls for a change. For the analysis, how should the boundary be drawn?", answers: ["Around the retailer’s legal entity only.", "As one enterprise spanning both parties, with the boundary drawn relative to the change.", "As two separate organisations analysed independently.", "Around the project team, since it is delivering the change."], correct: 1, feedback: "B. An enterprise can span a company and its regulator, and its boundary is drawn relative to the change, not to a legal entity. When parties cross corporate boundaries, think enterprise." },
       ],
-      quizInstruction: "Three single-answer scenario questions. Pick one option and the answer panel appears.",
+      quizInstruction: "Three single-answer scenario questions. The learner picks one option and the answer panel appears.",
+    },
+    {
+      id: "self-check", tab: "Self-check", type: "selfcheck",
+      headline: "Self-check",
+      intro: "Score yourself 1 to 4 in each row.",
+      image: "exam-lock-in",
       rows: [
         { area: "The seven terms", ready: "State each term’s definition in one line", revisit: "Revisit Section 1" },
         { area: "Information vs requirements", ready: "Explain why requirements are a subset of BA information", revisit: "Revisit Section 2" },
@@ -101,8 +110,19 @@ export const lesson = {
         { area: "Transition and non-functional", ready: "Apply the “survives go-live?” and “behaviour or condition?” tests", revisit: "Revisit Section 4" },
       ],
       scale: ["Shaky", "Developing", "Solid", "Exam-ready"],
-      selfCheckInstruction: "Score yourself 1 to 4 in each row. 1 = shaky, 2 = developing, 3 = solid, 4 = exam-ready. Return to the matching section for any low score.",
-      examLens: "Enterprise vs organisation. Parties across corporate boundaries means enterprise. Risk can be increased. Do not rule out an option just because it raises exposure; risk is about value. Information vs requirements. Requirements are a subset of business analysis information. Transition is temporary. Ask whether the capability survives go-live. Non-functional is not technical. Behaviour or information managed is functional; conditions and qualities are non-functional.",
+      instruction: "Score yourself 1 to 4 in each row. 1 = shaky, 2 = developing, 3 = solid, 4 = exam-ready. Return to the matching section for any low score.",
+    },
+    {
+      id: "exam-lens", tab: "Exam lens", type: "examlens",
+      headline: "Exam Lens",
+      image: "key-terms-exam-lens",
+      items: [
+        { title: "Enterprise vs organisation", text: "Parties across corporate boundaries means enterprise." },
+        { title: "Risk can be increased", text: "Do not rule out an option just because it raises exposure; risk is about value." },
+        { title: "Information vs requirements", text: "Requirements are a subset of business analysis information." },
+        { title: "Transition is temporary", text: "Ask whether the capability survives go-live." },
+        { title: "Non-functional is not technical", text: "Behaviour or information managed is functional; conditions and qualities are non-functional." },
+      ],
     },
   ],
 };

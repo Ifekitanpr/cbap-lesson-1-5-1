@@ -32,6 +32,8 @@ function BarChart({ chart }) {
 }
 
 function FocusModal({ content, imageFor, onClose, onRead, action = "Mark as read" }) {
+  const [page, setPage] = useState(0);
+  const hasSecondPage = Boolean(content.table || (content.note && content.note.length > 220));
   useEffect(() => {
     const closeOnEscape = (event) => event.key === "Escape" && onClose();
     window.addEventListener("keydown", closeOnEscape);
@@ -42,15 +44,26 @@ function FocusModal({ content, imageFor, onClose, onRead, action = "Mark as read
     <div className="modal-backdrop" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
       <section className="focus-modal" role="dialog" aria-modal="true" aria-labelledby="focus-title">
         <button className="modal-close" type="button" onClick={onClose} aria-label="Close"><X /></button>
-        {content.image && <img src={imageFor(content.image)} alt="" />}
+        {content.image && page === 0 && <img src={imageFor(content.image)} alt="" />}
         {content.subtitle && <p className="detail-subtitle">{content.subtitle}</p>}
         <h3 id="focus-title">{content.title}</h3>
-        {content.text && <p className="detail-text">{content.text}</p>}
-        {content.bulletsTitle && <h4 className="detail-list-title">{content.bulletsTitle}</h4>}
-        {content.bullets && <ul>{content.bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}</ul>}
-        <DetailTable table={content.table} />
-        {content.note && <div className="detail-note">{content.note.split("\n").map((line, index) => <p key={index}>{line || " "}</p>)}</div>}
-        <button className="modal-action" type="button" onClick={() => { onRead(); onClose(); }}>{action} <Check /></button>
+        {page === 0 && <>
+          {content.text && <p className="detail-text">{content.text}</p>}
+          {content.bulletsTitle && <h4 className="detail-list-title">{content.bulletsTitle}</h4>}
+          {content.bullets && <ul>{content.bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}</ul>}
+          {!hasSecondPage && content.note && <div className="detail-note">{content.note.split("\n").map((line, index) => <p key={index}>{line || " "}</p>)}</div>}
+        </>}
+        {page === 1 && <>
+          <p className="modal-page-label">DETAIL 2 OF 2</p>
+          <DetailTable table={content.table} />
+          {content.note && <div className="detail-note">{content.note.split("\n").map((line, index) => <p key={index}>{line || " "}</p>)}</div>}
+        </>}
+        <div className="modal-footer">
+          {page === 1 && <button className="modal-back" type="button" onClick={() => setPage(0)}><ArrowLeft /> Back</button>}
+          {hasSecondPage && page === 0
+            ? <button className="modal-action" type="button" onClick={() => setPage(1)}>Continue <ArrowRight /></button>
+            : <button className="modal-action" type="button" onClick={() => { onRead(); onClose(); }}>{action} <Check /></button>}
+        </div>
       </section>
     </div>,
     document.body,
@@ -124,16 +137,53 @@ function ExploreScreen({ screen, imageFor, visited, onVisit, onComplete }) {
   );
 }
 
+function SelectorScreen({ screen, imageFor, visited, onVisit, onComplete }) {
+  const [active, setActive] = useState(0);
+  const item = screen.items[active];
+  const allRead = visited.size === screen.items.length;
+  useEffect(() => { onVisit(active); }, [active]);
+  useEffect(() => { if (allRead) onComplete(); }, [allRead, onComplete]);
+  return (
+    <div className="grid-page selector-page">
+      <ScreenHeader screen={screen} imageFor={imageFor} />
+      <div className="concept-selector">
+        <div className="concept-list" role="tablist" aria-label={screen.headline}>
+          {screen.items.map((entry, index) => <button type="button" role="tab" aria-selected={active === index} className={`${active === index ? "active" : ""} ${visited.has(index) ? "read" : ""}`} key={entry.title} onClick={() => setActive(index)}>
+            <span>{String(index + 1).padStart(2, "0")}</span><strong>{entry.title}</strong>{visited.has(index) && <Check />}
+          </button>)}
+        </div>
+        <div className="concept-detail" role="tabpanel" key={item.title}>
+          <img src={imageFor(item.image || screen.image)} alt="" />
+          <div>
+            {item.subtitle && <p className="detail-subtitle">{item.subtitle}</p>}
+            <h3>{item.title}</h3>
+            {item.text && <p>{item.text}</p>}
+            {item.note && <div className="detail-note">{item.note.split("\n").map((line, index) => <p key={index}>{line || " "}</p>)}</div>}
+          </div>
+        </div>
+      </div>
+      <p className="selector-progress">{visited.size} of {screen.items.length} explored</p>
+      {allRead && screen.anchor && <div className="knowledge-anchor"><Target /><div><strong>Knowledge anchor</strong><p>{screen.anchor}</p></div></div>}
+    </div>
+  );
+}
+
 function SelfCheck({ rows, scale, instruction, onDone }) {
   const [index, setIndex] = useState(0);
-  const [scores, setScores] = useState([]);
+  const [scores, setScores] = useState(() => rows.map(() => null));
+  const [selected, setSelected] = useState(null);
   const row = rows[index];
-  const finished = scores.length === rows.length;
-  const choose = (score) => {
-    const next = [...scores, score];
+  const finished = scores.every((score) => score !== null);
+  const save = () => {
+    if (selected === null) return;
+    const next = scores.map((score, scoreIndex) => scoreIndex === index ? selected : score);
     setScores(next);
-    if (next.length === rows.length) onDone(next);
-    else setIndex((value) => value + 1);
+    if (next.every((score) => score !== null)) onDone(next);
+    else {
+      const nextIndex = next.findIndex((score) => score === null);
+      setIndex(nextIndex);
+      setSelected(null);
+    }
   };
   if (finished) {
     const total = scores.reduce((sum, score) => sum + score, 0);
@@ -149,21 +199,31 @@ function SelfCheck({ rows, scale, instruction, onDone }) {
     </div>;
   }
   return (
-    <div className="self-check-card">
-      <div className="self-check-intro"><strong>Self-check</strong><p>{instruction}</p></div>
-      <div className="self-check-progress"><span>Area {index + 1} of {rows.length}</span><i><b style={{ width: `${((index + 1) / rows.length) * 100}%` }} /></i></div>
-      <p className="self-check-area">{row.area}</p>
-      <h2>{row.ready}</h2>
-      <div className="rating-scale" aria-label={`Rate ${row.area} from 1 to 4`}>
-        <div className="rating-track" aria-hidden="true"><i /></div>
-        <div className="score-buttons">{scale.map((label, scoreIndex) => <button type="button" key={label} onClick={() => choose(scoreIndex + 1)}><span>{scoreIndex + 1}</span><small>{label}</small></button>)}</div>
+    <div className="self-check-workspace">
+      <aside className="rating-areas" aria-label="Self-check areas">
+        <p>{instruction}</p>
+        {rows.map((entry, rowIndex) => <button type="button" key={entry.area} disabled={scores[rowIndex] === null && rowIndex !== index} className={`${rowIndex === index ? "active" : ""} ${scores[rowIndex] !== null ? "rated" : ""}`} onClick={() => { setIndex(rowIndex); setSelected(scores[rowIndex]); }}>
+          <span>{scores[rowIndex] ?? String(rowIndex + 1).padStart(2, "0")}</span><strong>{entry.area}</strong>{scores[rowIndex] !== null && <Check />}
+        </button>)}
+      </aside>
+      <div className="rating-panel">
+        <div className="self-check-progress"><span>Area {index + 1} of {rows.length}</span><i><b style={{ width: `${((index + 1) / rows.length) * 100}%` }} /></i></div>
+        <p className="self-check-area">{row.area}</p>
+        <h2>{row.ready}</h2>
+        <p className="rating-prompt">How confident are you right now?</p>
+        <div className="confidence-meter" role="radiogroup" aria-label={`Rate ${row.area} from 1 to 4`}>
+          {scale.map((label, scoreIndex) => <button type="button" role="radio" aria-checked={selected === scoreIndex + 1} className={selected === scoreIndex + 1 ? "selected" : ""} key={label} onClick={() => setSelected(scoreIndex + 1)}><span>{scoreIndex + 1}</span><strong>{label}</strong></button>)}
+        </div>
+        <div className="rating-confirm">
+          <span>{selected ? `Selected: ${scale[selected - 1]} · ${selected}/4` : "Choose the level that feels true—not the one you want to be true."}</span>
+          <button type="button" disabled={selected === null} onClick={save}>{index === rows.length - 1 ? "Finish" : "Save rating"} <ArrowRight /></button>
+        </div>
       </div>
     </div>
   );
 }
 
 function SelfCheckScreen({ screen, imageFor, onComplete }) {
-  const [focus, setFocus] = useState(null);
   const [done, setDone] = useState(false);
   return (
     <div className="grid-page">
@@ -172,12 +232,7 @@ function SelfCheckScreen({ screen, imageFor, onComplete }) {
       {done && <div className="self-check-followup">
         {screen.howTo && <div className="how-to-scores"><strong>How to use your scores</strong><p>{screen.howTo}</p></div>}
         {screen.crosswalk && <section className="crosswalk-section"><h3>{screen.crosswalkTitle}</h3><p>{screen.crosswalkIntro}</p><DetailTable table={screen.crosswalk} />{screen.crosswalkCaption && <small>{screen.crosswalkCaption}</small>}</section>}
-        <div className="source-actions">
-          {screen.examLens && <button className="knowledge-cta" type="button" onClick={() => setFocus({ title: "Exam Lens", text: screen.examLens, image: screen.lensImage })}><Target /> Open exam lens</button>}
-          {screen.summary && <button className="knowledge-retake" type="button" onClick={() => setFocus({ title: screen.summaryTitle, text: screen.summary })}>Open framework crosswalk</button>}
-        </div>
       </div>}
-      {focus && <FocusModal content={focus} imageFor={imageFor} onClose={() => setFocus(null)} onRead={() => {}} action="Done" />}
     </div>
   );
 }
@@ -210,29 +265,33 @@ function KnowledgeCheckModal({ questions, startIndex, onClose, onFinish }) {
   );
 }
 
-function QuizScreen({ screen, imageFor, onComplete }) {
+function KnowledgeCheckScreen({ screen, imageFor, complete, onComplete }) {
   const [quizOpen, setQuizOpen] = useState(false);
-  const [checksDone, setChecksDone] = useState(false);
-  const [selfDone, setSelfDone] = useState(false);
-  const [lens, setLens] = useState(false);
-  useEffect(() => { if (checksDone && selfDone) onComplete(); }, [checksDone, selfDone, onComplete]);
   return (
-    <div className="grid-page">
-      <ScreenHeader screen={screen} imageFor={imageFor} />
-      {!checksDone ? (
-        <div className="knowledge-launch">
-          <div><p className="quiz-step"><Target /> Knowledge checks</p><h2>Three single-answer scenario questions</h2><p>{screen.quizInstruction}</p></div>
-          <button className="knowledge-cta" type="button" onClick={() => setQuizOpen(true)}><Target /> Start knowledge check <ArrowRight /></button>
-        </div>
-      ) : !selfDone ? (
-        <div className="lock-in-self-check"><div className="knowledge-actions completed"><div className="knowledge-complete"><span><Check /></span><div><strong>Knowledge check completed</strong><small>All three answer panels reviewed</small></div></div><button className="knowledge-cta" type="button" disabled><Check /> Completed</button></div><SelfCheck rows={screen.rows} scale={screen.scale} instruction={screen.selfCheckInstruction} onDone={() => setSelfDone(true)} /></div>
-      ) : (
-        <div className="knowledge-actions completed"><div className="knowledge-complete"><span><Check /></span><div><strong>Lock It In complete</strong><small>Three checks and the self-check completed</small></div></div><div className="knowledge-action-buttons"><button className="knowledge-cta" type="button" disabled><Check /> Completed</button><button className="knowledge-retake" type="button" onClick={() => setLens(true)}>Open exam lens</button></div></div>
-      )}
-      {quizOpen && <KnowledgeCheckModal questions={screen.quiz} startIndex={0} onClose={() => setQuizOpen(false)} onFinish={() => { setChecksDone(true); setQuizOpen(false); }} />}
-      {lens && <FocusModal content={{ title: "Exam lens", text: screen.examLens, image: screen.lensImage }} imageFor={imageFor} onClose={() => setLens(false)} onRead={() => {}} action="Done" />}
+    <div className="knowledge-experience">
+      <div className="knowledge-experience-copy">
+        <p className="quiz-step"><Target /> Knowledge checks</p>
+        <h2>{complete ? "Knowledge check completed" : screen.headline}</h2>
+        <p>{complete ? "All three answer panels reviewed." : screen.quizInstruction}</p>
+        <button className="knowledge-cta" type="button" disabled={complete} onClick={() => setQuizOpen(true)}>{complete ? <><Check /> Completed</> : <><Target /> Start check <ArrowRight /></>}</button>
+      </div>
+      <img src={imageFor(screen.image)} alt="" />
+      {quizOpen && <KnowledgeCheckModal questions={screen.quiz} startIndex={0} onClose={() => setQuizOpen(false)} onFinish={() => { onComplete(); setQuizOpen(false); }} />}
     </div>
   );
+}
+
+function LockIntroScreen({ screen, imageFor, complete, onComplete }) {
+  return <div className="content-grid lock-intro"><div className="content-copy"><h1>{screen.headline}</h1><p className="lead">{screen.intro}</p><button className="primary-cta" type="button" disabled={complete} onClick={onComplete}>{complete ? "Ready" : "Begin"} {complete ? <Check /> : <ArrowRight />}</button></div><img className="lesson-art" src={imageFor(screen.image)} alt="" /></div>;
+}
+
+function ExamLensScreen({ screen, imageFor, visited, onVisit, onComplete }) {
+  const [active, setActive] = useState(0);
+  const item = screen.items[active];
+  const allRead = visited.size === screen.items.length;
+  useEffect(() => { onVisit(active); }, [active]);
+  useEffect(() => { if (allRead) onComplete(); }, [allRead, onComplete]);
+  return <div className="grid-page exam-lens-page"><ScreenHeader screen={screen} imageFor={imageFor} /><div className="exam-lens-workspace"><div className="exam-lens-list">{screen.items.map((entry, index) => <button type="button" className={`${active === index ? "active" : ""} ${visited.has(index) ? "read" : ""}`} key={entry.title} onClick={() => setActive(index)}><span>{String(index + 1).padStart(2, "0")}</span><strong>{entry.title}</strong>{visited.has(index) && <Check />}</button>)}</div><div className="exam-lens-detail" key={item.title}><p>EXAM LENS · {active + 1} OF {screen.items.length}</p><h3>{item.title}</h3><div>{item.text}</div></div></div><p className="selector-progress">{visited.size} of {screen.items.length} reviewed</p></div>;
 }
 
 function CompletionModal({ lesson, onClose }) {
@@ -273,9 +332,11 @@ export function LessonApp({ lesson, imageFor }) {
           <nav className="section-tabs" aria-label="Lesson sections"><p>SECTION {screenIndex + 1} OF {lesson.screens.length}</p><div>{lesson.screens.map((entry, index) => <button type="button" key={entry.id} className={`${index === screenIndex ? "active" : ""} ${completed[index] ? "done" : ""}`} disabled={index > 0 && !completed[index - 1]} onClick={() => goTo(index)}>{completed[index] && <Check />}<span>{entry.tab}</span></button>)}</div></nav>
           <section className="lesson-content" key={screen.id}>
             {screen.type === "reveal" && <RevealScreen screen={enrichedScreen} imageFor={imageFor} complete={completed[screenIndex]} onComplete={markComplete} />}
-            {(screen.type === "cards" || screen.type === "pager") && <ExploreScreen screen={enrichedScreen} imageFor={imageFor} visited={currentVisited} onVisit={visitItem} onComplete={markComplete} />}
+            {(screen.type === "cards" || screen.type === "pager") && (screen.presentation === "selector" ? <SelectorScreen screen={enrichedScreen} imageFor={imageFor} visited={currentVisited} onVisit={visitItem} onComplete={markComplete} /> : <ExploreScreen screen={enrichedScreen} imageFor={imageFor} visited={currentVisited} onVisit={visitItem} onComplete={markComplete} />)}
             {screen.type === "selfcheck" && <SelfCheckScreen screen={enrichedScreen} imageFor={imageFor} onComplete={markComplete} />}
-            {screen.type === "quiz" && <QuizScreen screen={enrichedScreen} imageFor={imageFor} onComplete={markComplete} />}
+            {screen.type === "lockintro" && <LockIntroScreen screen={enrichedScreen} imageFor={imageFor} complete={completed[screenIndex]} onComplete={markComplete} />}
+            {screen.type === "knowledgecheck" && <KnowledgeCheckScreen screen={enrichedScreen} imageFor={imageFor} complete={completed[screenIndex]} onComplete={markComplete} />}
+            {screen.type === "examlens" && <ExamLensScreen screen={enrichedScreen} imageFor={imageFor} visited={currentVisited} onVisit={visitItem} onComplete={markComplete} />}
           </section>
           {completed[screenIndex] && <div className="interaction-status"><Check /> Section explored. Continue when you’re ready.</div>}
           <footer className="nav-footer" ref={footerRef}><button className="secondary-button" type="button" disabled={screenIndex === 0} onClick={() => goTo(screenIndex - 1)}><ArrowLeft /> Previous</button><button className={`primary-button ${completed[screenIndex] ? "unlocked" : ""}`} type="button" disabled={!completed[screenIndex]} onClick={next}>{screenIndex === lesson.screens.length - 1 ? "Complete lesson" : "Continue"} <ArrowRight /></button></footer>
