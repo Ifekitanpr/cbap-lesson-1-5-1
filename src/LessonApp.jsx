@@ -138,7 +138,7 @@ function SelfCheckScreen({ screen, imageFor, onComplete }) {
     <div className="grid-page">
       <ScreenHeader screen={screen} imageFor={imageFor} />
       <SelfCheck rows={screen.rows} scale={screen.scale} onDone={() => { setDone(true); onComplete(); }} />
-      {done && <button className="knowledge-cta" type="button" onClick={() => setFocus({ title: "Course map and exam lens", table: screen.crosswalk, text: screen.examLens, note: screen.summary, image: screen.image })}><Target /> Open exam lens</button>}
+      {done && <button className="knowledge-cta" type="button" onClick={() => setFocus({ title: "Course map and exam lens", table: screen.crosswalk, text: screen.examLens, note: screen.summary, image: screen.lensImage })}><Target /> Open exam lens</button>}
       {focus && <FocusModal content={focus} imageFor={imageFor} onClose={() => setFocus(null)} onRead={() => {}} action="Done" />}
     </div>
   );
@@ -173,7 +173,7 @@ function QuizScreen({ screen, imageFor, onComplete }) {
       ) : (
         <div className="score-summary"><span><Check /></span><div><strong>Knowledge check completed</strong><p>You completed all three checks and the self-score.</p><button className="knowledge-cta" type="button" onClick={() => setLens(true)}><Target /> Open exam lens</button></div></div>
       )}
-      {lens && <FocusModal content={{ title: "Exam lens", text: screen.examLens, image: screen.image }} imageFor={imageFor} onClose={() => setLens(false)} onRead={() => {}} action="Done" />}
+      {lens && <FocusModal content={{ title: "Exam lens", text: screen.examLens, image: screen.lensImage }} imageFor={imageFor} onClose={() => setLens(false)} onRead={() => {}} action="Done" />}
     </div>
   );
 }
