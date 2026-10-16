@@ -251,43 +251,6 @@
   border-bottom: 0;
 }
 
-.pager-controls {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 18px;
-  margin-top: 20px;
-}
-
-.pager-controls button {
-  display: inline-flex;
-  min-height: 42px;
-  align-items: center;
-  gap: 7px;
-  border: 1px solid #cbd5e1;
-  border-radius: 5px;
-  background: #fff;
-  padding: 0 15px;
-  color: #0f172a;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.pager-controls button:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-}
-
-.pager-controls svg {
-  width: 16px;
-}
-
-.pager-controls span {
-  color: #64748b;
-  font-size: 12px;
-  font-weight: 800;
-}
-
 .knowledge-anchor,
 .score-summary {
   display: flex;

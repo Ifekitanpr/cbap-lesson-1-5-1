@@ -72,7 +72,7 @@ function RevealScreen({ screen, imageFor, complete, onComplete }) {
 
 function CardGrid({ items, visited, onOpen }) {
   const iconSet = [Compass, Layers3, Workflow, Users, FileText, ListChecks, ShieldCheck, Route, FileCheck2];
-  const countClass = items.length === 4 ? "two-by-two" : items.length === 3 ? "three" : items.length === 2 ? "two" : "four";
+  const countClass = items.length === 4 ? "two-by-two" : items.length >= 5 ? "three" : items.length === 3 ? "three" : "two";
   return (
     <div className={`card-grid ${countClass}`}>
       {items.map((item) => {
@@ -89,11 +89,7 @@ function CardGrid({ items, visited, onOpen }) {
 
 function ExploreScreen({ screen, imageFor, visited, onVisit, onComplete }) {
   const [active, setActive] = useState(null);
-  const [page, setPage] = useState(0);
-  const pageSize = screen.type === "pager" ? screen.pageSize : screen.items.length;
-  const pages = Math.ceil(screen.items.length / pageSize);
-  const start = page * pageSize;
-  const visible = screen.items.slice(start, start + pageSize).map((item, index) => ({ ...item, index: start + index }));
+  const visible = screen.items.map((item, index) => ({ ...item, index }));
   const allRead = visited.size === screen.items.length;
 
   useEffect(() => { if (allRead) onComplete(); }, [allRead, onComplete]);
@@ -102,13 +98,6 @@ function ExploreScreen({ screen, imageFor, visited, onVisit, onComplete }) {
     <div className="grid-page">
       <ScreenHeader screen={screen} imageFor={imageFor} />
       <CardGrid items={visible} visited={visited} onOpen={setActive} />
-      {pages > 1 && (
-        <div className="pager-controls">
-          <button type="button" disabled={page === 0} onClick={() => setPage((value) => value - 1)}><ArrowLeft /> Back</button>
-          <span>{page + 1} of {pages}</span>
-          <button type="button" disabled={page === pages - 1} onClick={() => setPage((value) => value + 1)}>Next <ArrowRight /></button>
-        </div>
-      )}
       {allRead && screen.after && <div className="revealed-note"><strong>{screen.after.title}</strong><p>{screen.after.text}</p>{screen.after.note && <small>{screen.after.note}</small>}</div>}
       {allRead && screen.anchor && <div className="knowledge-anchor"><Target /><div><strong>Knowledge anchor</strong><p>{screen.anchor}</p></div></div>}
       {active !== null && <FocusModal content={{ ...screen.items[active], image: screen.items[active].image || screen.image }} imageFor={imageFor} onClose={() => setActive(null)} onRead={() => onVisit(active)} />}
