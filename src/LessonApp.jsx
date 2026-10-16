@@ -174,6 +174,8 @@ function SelectorScreen({ screen, imageFor, visited, onVisit, onComplete }) {
 
 function SelfCheck({ rows, scale, instruction, onDone }) {
   const [index, setIndex] = useState(0);
+  const [phase, setPhase] = useState("respond");
+  const [responses, setResponses] = useState(() => rows.map(() => ""));
   const [scores, setScores] = useState(() => rows.map(() => null));
   const [selected, setSelected] = useState(1);
   const [touched, setTouched] = useState(false);
@@ -187,6 +189,7 @@ function SelfCheck({ rows, scale, instruction, onDone }) {
     else {
       const nextIndex = next.findIndex((score) => score === null);
       setIndex(nextIndex);
+      setPhase("respond");
       setSelected(1);
       setTouched(false);
     }
@@ -211,23 +214,50 @@ function SelfCheck({ rows, scale, instruction, onDone }) {
       <div className="rating-panel">
         <p className="self-check-area">{row.area}</p>
         <h2>{row.ready}</h2>
-        <div className={`rating-visual ${touched ? "has-value" : ""}`}>
-          <div className="rating-value" aria-live="polite">
-            <strong>{touched ? selected : "—"}</strong>
-            <span>{touched ? scale[selected - 1] : "Move the slider"}</span>
+        {phase === "respond" ? <div className="response-step">
+          <label htmlFor={`self-check-response-${index}`}>Your response</label>
+          <textarea
+            id={`self-check-response-${index}`}
+            value={responses[index]}
+            placeholder="Write your answer here…"
+            onChange={(event) => setResponses((state) => state.map((value, responseIndex) => responseIndex === index ? event.target.value : value))}
+          />
+          <div className="response-actions">
+            <span>Use your own words. Your response is not automatically graded.</span>
+            <button type="button" disabled={!responses[index].trim()} onClick={() => setPhase("compare")}>Compare my response <ArrowRight /></button>
           </div>
-          <div className="confidence-bars" aria-hidden="true">
-            {scale.map((label, scoreIndex) => <i key={label} className={`${touched && scoreIndex + 1 <= selected ? "reached" : ""} ${touched && scoreIndex + 1 === selected ? "current" : ""}`} style={{ height: `${48 + scoreIndex * 28}px` }} />)}
+        </div> : <div className="compare-step">
+          <div className="response-comparison">
+            <section className="learner-response">
+              <div className="comparison-label"><span>Your response</span><button type="button" onClick={() => setPhase("respond")}>Edit response</button></div>
+              <p>{responses[index]}</p>
+            </section>
+            <section className="lesson-reference">
+              <div className="comparison-label"><span>From the lesson</span></div>
+              <ul>{row.reference.map((point) => <li key={point}>{point}</li>)}</ul>
+            </section>
           </div>
-        </div>
-        <div className="slider-control">
-          <input type="range" min="1" max="4" step="1" value={selected} aria-label={`Rate ${row.area} from 1 to 4`} aria-valuetext={touched ? `${selected}, ${scale[selected - 1]}` : "Not yet rated"} onChange={(event) => { setSelected(Number(event.target.value)); setTouched(true); }} style={{ "--rating-progress": touched ? `${((selected - 1) / 3) * 100}%` : "0%" }} />
-          <div className="slider-labels" aria-hidden="true">{scale.map((label, scoreIndex) => <span key={label}><b>{scoreIndex + 1}</b>{label}</span>)}</div>
-        </div>
-        <div className="rating-confirm">
-          <span>{touched ? `Current level: ${scale[selected - 1]}` : "Choose the level that feels true—not the one you want to be true."}</span>
-          <button type="button" disabled={!touched} onClick={save}>{index === rows.length - 1 ? "Finish" : "Save rating"} <ArrowRight /></button>
-        </div>
+          <div className="rating-step">
+            <div className="rating-step-heading"><h3>How would you rate your response?</h3><p>Compare what you wrote with the lesson, then choose the level that feels true.</p></div>
+            <div className={`rating-visual ${touched ? "has-value" : ""}`}>
+              <div className="rating-value" aria-live="polite">
+                <strong>{touched ? selected : "—"}</strong>
+                <span>{touched ? scale[selected - 1] : "Move the slider"}</span>
+              </div>
+              <div className="confidence-bars" aria-hidden="true">
+                {scale.map((label, scoreIndex) => <i key={label} className={`${touched && scoreIndex + 1 <= selected ? "reached" : ""} ${touched && scoreIndex + 1 === selected ? "current" : ""}`} style={{ height: `${48 + scoreIndex * 28}px` }} />)}
+              </div>
+            </div>
+            <div className="slider-control">
+              <input type="range" min="1" max="4" step="1" value={selected} aria-label={`Rate ${row.area} from 1 to 4`} aria-valuetext={touched ? `${selected}, ${scale[selected - 1]}` : "Not yet rated"} onChange={(event) => { setSelected(Number(event.target.value)); setTouched(true); }} style={{ "--rating-progress": touched ? `${((selected - 1) / 3) * 100}%` : "0%" }} />
+              <div className="slider-labels" aria-hidden="true">{scale.map((label, scoreIndex) => <span key={label}><b>{scoreIndex + 1}</b>{label}</span>)}</div>
+            </div>
+            <div className="rating-confirm">
+              <span>{touched ? `Current level: ${scale[selected - 1]}` : "Choose the level that feels true—not the one you want to be true."}</span>
+              <button type="button" disabled={!touched} onClick={save}>{index === rows.length - 1 ? "Finish self-check" : "Save rating & continue"} <ArrowRight /></button>
+            </div>
+          </div>
+        </div>}
       </div>
     </div>
   );
