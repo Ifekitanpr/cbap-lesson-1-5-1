@@ -707,27 +707,6 @@
   line-height: 1.6;
 }
 
-.self-check-guide {
-  display: inline-flex;
-  width: fit-content;
-  align-items: center;
-  gap: 8px;
-  margin: 36px 0 0;
-  border-radius: 8px;
-  background: #eff6ff;
-  color: #075bb8;
-  padding: 9px 12px;
-  font-size: 13px;
-  font-weight: 800;
-  line-height: 1.4;
-}
-
-.self-check-guide svg {
-  width: 18px;
-  height: 18px;
-  flex: none;
-}
-
 .rating-visual {
   display: grid;
   min-height: 210px;
@@ -1029,10 +1008,6 @@
 @media (max-width: 600px) {
   .selector-header h2 {
     font-size: clamp(36px, 11vw, 48px);
-  }
-
-  .self-check-guide {
-    width: 100%;
   }
 
   .rating-visual {

@@ -211,7 +211,6 @@ function SelfCheck({ rows, scale, instruction, onDone }) {
       <div className="rating-panel">
         <p className="self-check-area">{row.area}</p>
         <h2>{row.ready}</h2>
-        <div className="activity-instruction self-check-guide"><Target /><span>Drag the slider to choose your current level, then save your rating.</span></div>
         <div className={`rating-visual ${touched ? "has-value" : ""}`}>
           <div className="rating-value" aria-live="polite">
             <strong>{touched ? selected : "—"}</strong>
