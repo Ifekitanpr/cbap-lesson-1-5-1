@@ -22,9 +22,12 @@ export const lesson = {
       },
     },
     {
-      id: "terms", tab: "Seven key terms", type: "pager", presentation: "selector", pageSize: 3,
+      id: "key-terms", tab: "Key terms", type: "keyterms",
+      subsections: [
+    {
+      id: "terms", tab: "At a glance", type: "pager", presentation: "selector", pageSize: 3,
       headline: "Seven Key Terms at a Glance",
-      intro: "Seven definitions. Two of them are traps. Here is the whole set in one view. The next two sections take them in two groups: the terms that describe the practice of business analysis, then the terms that describe its context. Section 4 covers the classification schema.",
+      intro: "Seven definitions. Two of them are traps. Here is the whole set in one view. The next two subsections take them in two groups: the terms that describe the practice of business analysis, then the terms that describe its context. The Requirements Classification Schema covers the classification scheme.",
       instruction: "Click each term to explore.",
       image: "key-terms",
       items: [
@@ -65,6 +68,8 @@ export const lesson = {
       ],
       anchor: "Enterprise = a system of organisations plus their solutions, boundary set relative to the change. Organisation = bounded, continuous, single management. Plan = events, dependencies, sequence. Risk = the effect of uncertainty on value, and it can be accepted or even increased to pursue an opportunity.",
     },
+      ],
+    },
     {
       id: "schema", tab: "Requirements schema", type: "cards",
       headline: "The Requirements Classification Schema",
@@ -78,12 +83,6 @@ export const lesson = {
         { title: "Transition requirements", subtitle: "What are the conditions?", text: "Capabilities the solution must have, and conditions it must meet, to facilitate transition from current state to future state, but which are not needed once the transition is complete.", note: "Example: “Historical stamp-card balances shall be migrated and reconciled before loyalty cutover”\n\nEXAM TRAP · TRANSITION REQUIREMENTS ARE TEMPORARY. The defining characteristic of a transition requirement is that it is no longer needed once the transition is complete. Data migration, parallel running, temporary interfaces, cutover training, legacy decommissioning: all transition. If the capability persists into steady-state operation, it is a solution requirement, not a transition requirement. Ask: does this survive go-live? If no, it is transitional.", image: "transition-requirements" },
       ],
       anchor: "Business = why. Stakeholder = what are the needs. Solution = what do I want (functional = what it does; non-functional = how well). Transition = what are the conditions. Four levels, four questions.",
-    },
-    {
-      id: "lock-in", tab: "Lock it in", type: "lockintro",
-      headline: "Lock It In",
-      intro: "Three checks, then a self-score.",
-      image: "exam-lock-in",
     },
     {
       id: "knowledge-check", tab: "Knowledge check", type: "knowledgecheck",
@@ -103,12 +102,12 @@ export const lesson = {
       intro: "Score yourself 1 to 4 in each row.",
       image: "exam-lock-in",
       rows: [
-        { area: "The seven terms", ready: "State each term’s definition in one line", revisit: "Revisit Section 1", reference: ["Business Analysis — Enabling change in an enterprise by defining needs and recommending solutions that deliver value.", "Business Analysis Information — Information of any kind, at any level of detail, used as an input to or produced as an output of BA work.", "Design — A usable representation of a solution.", "Enterprise — A system of one or more organisations and the solutions they use to pursue common goals.", "Organisation — An autonomous group under a single individual or board, with a clear boundary, operating continuously.", "Plan — A proposal for doing or achieving something: events, dependencies, and expected sequence.", "Risk — The effect of uncertainty on the value of a change, a solution, or the enterprise."] },
-        { area: "Information vs requirements", ready: "Explain why requirements are a subset of BA information", revisit: "Revisit Section 2", reference: ["Information of any kind, at any level of detail, used as an input to or produced as an output of business analysis work.", "Examples include elicitation results, requirements, designs, solution options, solution scope, and change strategy.", "Requirements are a subset of business analysis information, not a synonym for it."] },
-        { area: "Enterprise vs organisation", ready: "Say which one a cross-company scenario calls for, and why", revisit: "Revisit Section 3", reference: ["An organisation is a bounded, continuously operating group under single management.", "An enterprise is a system of one or more organisations plus the solutions they use, and its boundary is drawn relative to the change.", "When a scenario involves parties across corporate boundaries, think enterprise."] },
-        { area: "Risk responses", ready: "List the six responses, including accepting or increasing risk", revisit: "Revisit Section 3", reference: ["Alter the likelihood — Change the likelihood of the conditions or events", "Mitigate consequences — Reduce the effect if the risk occurs", "Remove the source — Take away what creates the risk", "Avoid — Do not start or continue the activity", "Share — Share the risk with other parties", "Accept, or even increase — Accept or increase the risk in order to pursue an opportunity"] },
-        { area: "The four levels", ready: "Give the question each level answers", revisit: "Revisit Section 4", reference: ["Business requirements — Why do I want it?", "Stakeholder requirements — What are the needs?", "Solution requirements — What do I want?", "Transition requirements — What are the conditions?"] },
-        { area: "Transition and non-functional", ready: "Apply the “survives go-live?” and “behaviour or condition?” tests", revisit: "Revisit Section 4", reference: ["Ask: does this survive go-live? If no, it is transitional.", "The test is not technicality. It is whether the requirement describes behaviour or information the solution manages (functional) versus a condition or quality under which it must operate (non-functional).", "“The system shall encrypt cardholder data at rest” is a behaviour, so it is functional.", "“The system shall remain available 99.95% of the time” is a condition, so it is non-functional."] },
+        { area: "The seven terms", ready: "State each term’s definition in one line", revisit: "Revisit Key terms", reference: ["Business Analysis — Enabling change in an enterprise by defining needs and recommending solutions that deliver value.", "Business Analysis Information — Information of any kind, at any level of detail, used as an input to or produced as an output of BA work.", "Design — A usable representation of a solution.", "Enterprise — A system of one or more organisations and the solutions they use to pursue common goals.", "Organisation — An autonomous group under a single individual or board, with a clear boundary, operating continuously.", "Plan — A proposal for doing or achieving something: events, dependencies, and expected sequence.", "Risk — The effect of uncertainty on the value of a change, a solution, or the enterprise."] },
+        { area: "Information vs requirements", ready: "Explain why requirements are a subset of BA information", revisit: "Revisit Key terms", reference: ["Information of any kind, at any level of detail, used as an input to or produced as an output of business analysis work.", "Examples include elicitation results, requirements, designs, solution options, solution scope, and change strategy.", "Requirements are a subset of business analysis information, not a synonym for it."] },
+        { area: "Enterprise vs organisation", ready: "Say which one a cross-company scenario calls for, and why", revisit: "Revisit Key terms", reference: ["An organisation is a bounded, continuously operating group under single management.", "An enterprise is a system of one or more organisations plus the solutions they use, and its boundary is drawn relative to the change.", "When a scenario involves parties across corporate boundaries, think enterprise."] },
+        { area: "Risk responses", ready: "List the six responses, including accepting or increasing risk", revisit: "Revisit Key terms", reference: ["Alter the likelihood — Change the likelihood of the conditions or events", "Mitigate consequences — Reduce the effect if the risk occurs", "Remove the source — Take away what creates the risk", "Avoid — Do not start or continue the activity", "Share — Share the risk with other parties", "Accept, or even increase — Accept or increase the risk in order to pursue an opportunity"] },
+        { area: "The four levels", ready: "Give the question each level answers", revisit: "Revisit Requirements schema", reference: ["Business requirements — Why do I want it?", "Stakeholder requirements — What are the needs?", "Solution requirements — What do I want?", "Transition requirements — What are the conditions?"] },
+        { area: "Transition and non-functional", ready: "Apply the “survives go-live?” and “behaviour or condition?” tests", revisit: "Revisit Requirements schema", reference: ["Ask: does this survive go-live? If no, it is transitional.", "The test is not technicality. It is whether the requirement describes behaviour or information the solution manages (functional) versus a condition or quality under which it must operate (non-functional).", "“The system shall encrypt cardholder data at rest” is a behaviour, so it is functional.", "“The system shall remain available 99.95% of the time” is a condition, so it is non-functional."] },
       ],
       scale: ["Shaky", "Developing", "Solid", "Exam-ready"],
       instruction: "Write your response, compare it with the lesson, then score yourself from 1 to 4. Return to the matching section for any low score.",

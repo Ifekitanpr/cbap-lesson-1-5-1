@@ -172,6 +172,50 @@ function SelectorScreen({ screen, imageFor, visited, onVisit, onComplete }) {
   );
 }
 
+function KeyTermsScreen({ screen, imageFor, onComplete }) {
+  const [active, setActive] = useState(0);
+  const [visited, setVisited] = useState({});
+  const [completed, setCompleted] = useState(() => screen.subsections.map(() => false));
+  const subsection = screen.subsections[active];
+  const subsectionVisited = useMemo(() => new Set(visited[subsection.id] || []), [visited, subsection.id]);
+  const markSubsectionComplete = useCallback(() => {
+    setCompleted((state) => state[active] ? state : state.map((value, index) => index === active ? true : value));
+  }, [active]);
+  const visitSubsectionItem = (itemIndex) => setVisited((state) => ({
+    ...state,
+    [subsection.id]: [...new Set([...(state[subsection.id] || []), itemIndex])],
+  }));
+  useEffect(() => {
+    if (completed.every(Boolean)) onComplete();
+  }, [completed, onComplete]);
+  const openSubsection = (index) => {
+    if (index > 0 && !completed[index - 1]) return;
+    setActive(index);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+  const last = active === screen.subsections.length - 1;
+  return (
+    <div className="key-terms-group">
+      <nav className="subsection-tabs" aria-label="Key terms subsections">
+        {screen.subsections.map((entry, index) => <button type="button" key={entry.id} className={`${active === index ? "active" : ""} ${completed[index] ? "done" : ""}`} disabled={index > 0 && !completed[index - 1]} onClick={() => openSubsection(index)}>
+          {completed[index] ? <Check /> : <span>{index + 1}</span>}<strong>{entry.tab}</strong>
+        </button>)}
+      </nav>
+      <div className="subsection-stage" key={subsection.id}>
+        {subsection.presentation === "selector"
+          ? <SelectorScreen screen={subsection} imageFor={imageFor} visited={subsectionVisited} onVisit={visitSubsectionItem} onComplete={markSubsectionComplete} />
+          : <ExploreScreen screen={subsection} imageFor={imageFor} visited={subsectionVisited} onVisit={visitSubsectionItem} onComplete={markSubsectionComplete} />}
+      </div>
+      <div className="subsection-footer">
+        <span>{active + 1} of {screen.subsections.length}</span>
+        {!last
+          ? <button type="button" disabled={!completed[active]} onClick={() => openSubsection(active + 1)}>Continue to {screen.subsections[active + 1].tab} <ArrowRight /></button>
+          : completed[active] && <strong><Check /> Key terms complete</strong>}
+      </div>
+    </div>
+  );
+}
+
 function SelfCheck({ rows, scale, instruction, onDone }) {
   const [index, setIndex] = useState(0);
   const [phase, setPhase] = useState("respond");
@@ -326,10 +370,6 @@ function KnowledgeCheckScreen({ screen, imageFor, complete, onComplete }) {
   );
 }
 
-function LockIntroScreen({ screen, imageFor, complete, onComplete }) {
-  return <div className="content-grid lock-intro"><div className="content-copy"><h1>{screen.headline}</h1><p className="lead">{screen.intro}</p><button className="primary-cta" type="button" disabled={complete} onClick={onComplete}>{complete ? "Ready" : "Begin"} {complete ? <Check /> : <ArrowRight />}</button></div><img className="lesson-art" src={imageFor(screen.image)} alt="" /></div>;
-}
-
 function ExamLensScreen({ screen, imageFor, visited, onVisit, onComplete }) {
   const [active, setActive] = useState(0);
   const item = screen.items[active];
@@ -377,9 +417,9 @@ export function LessonApp({ lesson, imageFor }) {
           <nav className="section-tabs" aria-label="Lesson sections"><p>SECTION {screenIndex + 1} OF {lesson.screens.length}</p><div>{lesson.screens.map((entry, index) => <button type="button" key={entry.id} className={`${index === screenIndex ? "active" : ""} ${completed[index] ? "done" : ""}`} disabled={index > 0 && !completed[index - 1]} onClick={() => goTo(index)}>{completed[index] && <Check />}<span>{entry.tab}</span></button>)}</div></nav>
           <section className="lesson-content" key={screen.id}>
             {screen.type === "reveal" && <RevealScreen screen={enrichedScreen} imageFor={imageFor} complete={completed[screenIndex]} onComplete={markComplete} />}
+            {screen.type === "keyterms" && <KeyTermsScreen screen={enrichedScreen} imageFor={imageFor} onComplete={markComplete} />}
             {(screen.type === "cards" || screen.type === "pager") && (screen.presentation === "selector" ? <SelectorScreen screen={enrichedScreen} imageFor={imageFor} visited={currentVisited} onVisit={visitItem} onComplete={markComplete} /> : <ExploreScreen screen={enrichedScreen} imageFor={imageFor} visited={currentVisited} onVisit={visitItem} onComplete={markComplete} />)}
             {screen.type === "selfcheck" && <SelfCheckScreen screen={enrichedScreen} onComplete={markComplete} />}
-            {screen.type === "lockintro" && <LockIntroScreen screen={enrichedScreen} imageFor={imageFor} complete={completed[screenIndex]} onComplete={markComplete} />}
             {screen.type === "knowledgecheck" && <KnowledgeCheckScreen screen={enrichedScreen} imageFor={imageFor} complete={completed[screenIndex]} onComplete={markComplete} />}
             {screen.type === "examlens" && <ExamLensScreen screen={enrichedScreen} imageFor={imageFor} visited={currentVisited} onVisit={visitItem} onComplete={markComplete} />}
           </section>
