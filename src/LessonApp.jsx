@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { ArrowLeft, ArrowRight, Check, Menu, Target, Volume2, VolumeX, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, BookOpen, Check, Menu, Target, Volume2, VolumeX, X } from "lucide-react";
 import { useLessonAudio } from "./useLessonAudio";
 
 function DetailTable({ table }) {
@@ -216,8 +216,8 @@ export function LessonApp({ lesson, imageFor }) {
   return (
     <div className="app-shell">
       <header className="topbar">
-        <div className="course-select"><span className="crumb">{lesson.module}</span><span className="crumb-sep">/</span><span className="crumb-current">Lesson {lesson.number} — {lesson.title}</span></div>
-        <div className="module-progress" aria-label="Lesson progress"><div>{lesson.screens.map((_, index) => <span key={index} className={`progress-dot ${completed[index] ? "done" : index === screenIndex ? "active" : ""}`}>{completed[index] ? <Check /> : index === screenIndex ? <span /> : null}</span>)}</div></div>
+        <button className="course-button" type="button" onClick={() => setOutlineOpen((value) => !value)}><BookOpen /><span>{lesson.course}</span></button>
+        <div className="progress-dots" aria-label={`Section ${screenIndex + 1} of ${lesson.screens.length}`}>{lesson.screens.map((entry, index) => <span key={entry.id} className={`progress-dot ${completed[index] ? "done" : ""} ${index === screenIndex ? "active" : ""}`}>{completed[index] ? <Check /> : null}</span>)}</div>
         <div className="top-actions"><button className="ghost-button" type="button" onClick={() => setSoundOn((value) => !value)}>{soundOn ? <Volume2 /> : <VolumeX />}<span>Sound {soundOn ? "on" : "off"}</span></button><button className="ghost-button" type="button"><X /><span>Quit</span></button></div>
       </header>
       <main className="workspace"><div className="lesson-stage">
