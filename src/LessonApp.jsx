@@ -64,7 +64,7 @@ function ScreenHeader({ screen, imageFor }) {
         <h2>{screen.headline}</h2>
         {screen.intro && <p className="lead">{screen.intro}</p>}
       </div>
-      <img className="section-illustration" src={imageFor(screen.image)} alt="" />
+      <div className="section-visual"><img className="section-illustration" src={imageFor(screen.image)} alt="" />{screen.figureCaption && <small>{screen.figureCaption}</small>}</div>
     </div>
   );
 }

@@ -94,6 +94,15 @@
   object-fit: contain;
 }
 
+.section-visual small {
+  display: block;
+  margin-top: 8px;
+  color: #64748b;
+  font-size: 11px;
+  line-height: 1.45;
+  text-align: center;
+}
+
 .grid-page > .card-grid {
   gap: 20px;
   margin-top: 22px;
