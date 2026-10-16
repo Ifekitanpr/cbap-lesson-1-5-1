@@ -172,6 +172,77 @@ function SelectorScreen({ screen, imageFor, visited, onVisit, onComplete }) {
   );
 }
 
+function TermMapScreen({ screen, visited, onVisit, onComplete }) {
+  const [active, setActive] = useState(null);
+  const item = active === null ? null : screen.items[active];
+  const allRead = visited.size === screen.items.length;
+  const groups = [
+    { title: "The practice of business analysis", label: "What the practice is, works with, and produces", start: 0, items: screen.items.slice(0, 3) },
+    { title: "The context", label: "Where the practice operates", start: 3, items: screen.items.slice(3) },
+  ];
+
+  useEffect(() => { if (allRead) onComplete(); }, [allRead, onComplete]);
+
+  const selectTerm = (index) => {
+    setActive(index);
+    onVisit(index);
+  };
+
+  return (
+    <div className="grid-page term-map-page">
+      <div className="selector-header term-map-header">
+        <h2>{screen.headline}</h2>
+        {screen.intro && <p className="lead">{screen.intro}</p>}
+      </div>
+      <div className="activity-instruction selector-guide"><Target /><span>{screen.instruction}</span></div>
+
+      <div className="term-map" aria-label={screen.headline}>
+        {groups.map((group) => <section className="term-map-group" key={group.title} aria-labelledby={`term-group-${group.start}`}>
+          <div className="term-map-group-heading">
+            <div>
+              <span>{group.start === 0 ? "GROUP 01" : "GROUP 02"}</span>
+              <h3 id={`term-group-${group.start}`}>{group.title}</h3>
+            </div>
+            <p>{group.label}</p>
+          </div>
+          <div className={`term-map-grid ${group.items.length === 4 ? "four" : "three"}`}>
+            {group.items.map((entry, groupIndex) => {
+              const index = group.start + groupIndex;
+              const selected = active === index;
+              return <button
+                type="button"
+                className={`${selected ? "active" : ""} ${visited.has(index) ? "read" : ""}`}
+                aria-pressed={selected}
+                aria-controls="term-definition"
+                key={entry.title}
+                onClick={() => selectTerm(index)}
+              >
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <strong>{entry.title}</strong>
+                {visited.has(index) ? <Check /> : <ArrowRight />}
+              </button>;
+            })}
+          </div>
+        </section>)}
+      </div>
+
+      <div className={`term-definition ${item ? "has-selection" : ""}`} id="term-definition" aria-live="polite">
+        {item ? <dl key={item.title}>
+          <dt>{item.title}</dt>
+          <dd>{item.text}</dd>
+          {item.note && <dd className="term-definition-note">{item.note}</dd>}
+        </dl> : <div className="term-definition-empty">
+          <ArrowRight />
+          <div><strong>Choose a term</strong><p>Its definition will appear here.</p></div>
+        </div>}
+        <p className="term-map-progress"><strong>{visited.size}</strong> of {screen.items.length} explored</p>
+      </div>
+
+      {allRead && screen.anchor && <div className="knowledge-anchor"><Target /><div><strong>Knowledge anchor</strong><p>{screen.anchor}</p></div></div>}
+    </div>
+  );
+}
+
 function KeyTermsScreen({ screen, imageFor, onComplete }) {
   const [active, setActive] = useState(0);
   const [visited, setVisited] = useState({});
@@ -202,9 +273,11 @@ function KeyTermsScreen({ screen, imageFor, onComplete }) {
         </button>)}
       </nav>
       <div className="subsection-stage" key={subsection.id}>
-        {subsection.presentation === "selector"
-          ? <SelectorScreen screen={subsection} imageFor={imageFor} visited={subsectionVisited} onVisit={visitSubsectionItem} onComplete={markSubsectionComplete} />
-          : <ExploreScreen screen={subsection} imageFor={imageFor} visited={subsectionVisited} onVisit={visitSubsectionItem} onComplete={markSubsectionComplete} />}
+        {subsection.presentation === "termmap"
+          ? <TermMapScreen screen={subsection} visited={subsectionVisited} onVisit={visitSubsectionItem} onComplete={markSubsectionComplete} />
+          : subsection.presentation === "selector"
+            ? <SelectorScreen screen={subsection} imageFor={imageFor} visited={subsectionVisited} onVisit={visitSubsectionItem} onComplete={markSubsectionComplete} />
+            : <ExploreScreen screen={subsection} imageFor={imageFor} visited={subsectionVisited} onVisit={visitSubsectionItem} onComplete={markSubsectionComplete} />}
       </div>
       <div className="subsection-footer">
         <span>{active + 1} of {screen.subsections.length}</span>

@@ -25,7 +25,7 @@ export const lesson = {
       id: "key-terms", tab: "Key terms", type: "keyterms",
       subsections: [
     {
-      id: "terms", tab: "At a glance", type: "pager", presentation: "selector", pageSize: 3,
+      id: "terms", tab: "At a glance", type: "pager", presentation: "termmap", pageSize: 3,
       headline: "Seven Key Terms at a Glance",
       intro: "Seven definitions. Two of them are traps. Here is the whole set in one view. The next two subsections take them in two groups: the terms that describe the practice of business analysis, then the terms that describe its context. The Requirements Classification Schema covers the classification scheme.",
       instruction: "Click each term to explore.",
