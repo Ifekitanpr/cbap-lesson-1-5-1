@@ -234,11 +234,16 @@ function SelfCheck({ rows, scale, instruction, onDone }) {
   );
 }
 
-function SelfCheckScreen({ screen, imageFor, onComplete }) {
+function SelfCheckScreen({ screen, onComplete }) {
   const [done, setDone] = useState(false);
   return (
     <div className="grid-page">
-      <ScreenHeader screen={screen} imageFor={imageFor} />
+      <div className="pmp-section-head self-check-section-head">
+        <div>
+          <h2>{screen.headline}</h2>
+          {screen.intro && <p className="lead">{screen.intro}</p>}
+        </div>
+      </div>
       <SelfCheck rows={screen.rows} scale={screen.scale} instruction={screen.instruction} onDone={() => { setDone(true); onComplete(); }} />
       {done && <div className="self-check-followup">
         {screen.howTo && <div className="how-to-scores"><strong>How to use your scores</strong><p>{screen.howTo}</p></div>}
@@ -344,7 +349,7 @@ export function LessonApp({ lesson, imageFor }) {
           <section className="lesson-content" key={screen.id}>
             {screen.type === "reveal" && <RevealScreen screen={enrichedScreen} imageFor={imageFor} complete={completed[screenIndex]} onComplete={markComplete} />}
             {(screen.type === "cards" || screen.type === "pager") && (screen.presentation === "selector" ? <SelectorScreen screen={enrichedScreen} imageFor={imageFor} visited={currentVisited} onVisit={visitItem} onComplete={markComplete} /> : <ExploreScreen screen={enrichedScreen} imageFor={imageFor} visited={currentVisited} onVisit={visitItem} onComplete={markComplete} />)}
-            {screen.type === "selfcheck" && <SelfCheckScreen screen={enrichedScreen} imageFor={imageFor} onComplete={markComplete} />}
+            {screen.type === "selfcheck" && <SelfCheckScreen screen={enrichedScreen} onComplete={markComplete} />}
             {screen.type === "lockintro" && <LockIntroScreen screen={enrichedScreen} imageFor={imageFor} complete={completed[screenIndex]} onComplete={markComplete} />}
             {screen.type === "knowledgecheck" && <KnowledgeCheckScreen screen={enrichedScreen} imageFor={imageFor} complete={completed[screenIndex]} onComplete={markComplete} />}
             {screen.type === "examlens" && <ExamLensScreen screen={enrichedScreen} imageFor={imageFor} visited={currentVisited} onVisit={visitItem} onComplete={markComplete} />}
